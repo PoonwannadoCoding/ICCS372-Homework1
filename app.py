@@ -1,4 +1,6 @@
-from flask import Flask, redirect, url_for, request
+import json
+
+from flask import Flask, redirect, url_for, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -16,7 +18,10 @@ class Machine(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False, autoincrement=True)
     name = db.Column(db.String(50), nullable=False)
     location = db.Column(db.String(50), nullable=False)
-    #stock = db.relationship('Stock', backref='machine')
+
+
+
+
 
 class Stock(db.Model):
     __tablename__ = 'Stock'
@@ -25,10 +30,11 @@ class Stock(db.Model):
     name = db.Column(db.String(50), nullable=False)
     items = db.Column(db.Integer, nullable=False)
 
+
 with app.app_context():
     db.create_all()
 @app.route('/')
-def hello_world():  # put application's code here
+def hello_world():
     return 'Hello World!'
 
 @app.route('/add/machine/', methods = ['POST'])
@@ -52,6 +58,12 @@ def addStock():
         db.session.commit()
         return json
 
+
+@app.route('/get/machine', methods = ['GET'])
+def showMachine():
+    machine = Machine.query.all()
+    all_users = [{'id': mech.id, 'name': mech.name, 'location': mech.location} for mech in machine]
+    return jsonify(all_users)
 
 if __name__ == '__main__':
     app.run()
