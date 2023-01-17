@@ -2,7 +2,7 @@ import json
 
 from flask import Flask, redirect, url_for, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
-
+from sqlalchemy import update
 app = Flask(__name__)
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://username:password@localhost/db_name'
@@ -72,6 +72,22 @@ def getInventory():
             return jsonify(inventoryMachine)
     except:
         return {'error': "Machine ID does not exist"}
+
+
+@app.route('/edit/machine', methods=['PUT'])
+def editMachine():
+    content_type = request.headers.get('Content-Type')
+    if (content_type == 'application/json'):
+        json = request.json
+        updateMachine = Machine.query.filter_by(id=json["id"]).first()
+        if not json["name"] == "":
+            updateMachine.name = json["name"]
+        if not json["location"] == "":
+            updateMachine.location = json["location"]
+        db.session.commit()
+        return json
+
+
 
 
 @app.route('/get/all/machine', methods = ['GET'])
