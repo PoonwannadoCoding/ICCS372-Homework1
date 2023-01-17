@@ -61,7 +61,7 @@ def addStock():
     except:
         return {'error': "Machine ID does not exist"}
 
-@app.route('/get/machine/inventory', methods = ['POST'])
+@app.route('/get/machine/inventory', methods = ['GET'])
 def getInventory():
     try:
         conteny_type = request.headers.get('Content-Type')
