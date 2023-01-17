@@ -80,10 +80,8 @@ def editMachine():
     if (content_type == 'application/json'):
         json = request.json
         updateMachine = Machine.query.filter_by(id=json["id"]).first()
-        if not json["name"] == "":
-            updateMachine.name = json["name"]
-        if not json["location"] == "":
-            updateMachine.location = json["location"]
+        updateMachine.name = json["name"]
+        updateMachine.location = json["location"]
         db.session.commit()
         return json
 
