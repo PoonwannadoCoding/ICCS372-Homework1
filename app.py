@@ -50,20 +50,44 @@ def addMachine():
 
 @app.route('/add/stock/', methods = ['POST'])
 def addStock():
-    content_type = request.headers.get('Content-Type')
-    if (content_type == 'application/json'):
-        json = request.json
-        newStock = Stock(name=json["name"], items=json["items"], machine_id=json["machine_id"])
-        db.session.add(newStock)
-        db.session.commit()
-        return json
+    try:
+        content_type = request.headers.get('Content-Type')
+        if (content_type == 'application/json'):
+            json = request.json
+            newStock = Stock(name=json["name"], items=json["items"], machine_id=json["machine_id"])
+            db.session.add(newStock)
+            db.session.commit()
+            return json
+    except:
+        return {'error': "Machine ID does not exist"}
+
+@app.route('/get/machine/inventory', methods = ['POST'])
+def getInventory():
+    try:
+        conteny_type = request.headers.get('Content-Type')
+        if(conteny_type == 'application/json'):
+            id = request.json["id"]
+            inventory = Stock.query.filter_by(machine_id = id).all()
+            inventoryMachine = [{'id': s.id, 'machine_id': s.machine_id, 'name': s.name, 'items': s.items} for s in inventory]
+            return jsonify(inventoryMachine)
+    except:
+        return {'error': "Machine ID does not exist"}
 
 
-@app.route('/get/machine', methods = ['GET'])
-def showMachine():
+@app.route('/get/all/machine', methods = ['GET'])
+def showAllMachine():
     machine = Machine.query.all()
-    all_users = [{'id': mech.id, 'name': mech.name, 'location': mech.location} for mech in machine]
-    return jsonify(all_users)
+    allMachines = [{'id': mech.id, 'name': mech.name, 'location': mech.location} for mech in machine]
+    return jsonify(allMachines)
+
+@app.route('/get/all/stock', methods = ['GET'])
+def showAllStock():
+    stocks = Stock.query.all()
+    allStocks = [{'id': s.id, 'machine_id': s.machine_id, 'name': s.name, 'items': s.items} for s in stocks]
+    return jsonify(allStocks)
+
+
+
 
 if __name__ == '__main__':
     app.run()
