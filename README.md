@@ -1,4 +1,4 @@
-# ICCS372Homework1
+# ICCS372: Homework1
 
 ## How to set up the project
 First type
