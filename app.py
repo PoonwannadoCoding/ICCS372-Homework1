@@ -1,6 +1,7 @@
 import json
 import os
 
+import requests
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
@@ -56,7 +57,7 @@ LOGIC: 1) delete the stock that have machine id same as the machine that we want
 
 
 @app.route('/delete/machine', methods=['DELETE'])
-def removeMachine():
+def remove_machine():
     try:
         content_type = request.headers.get('Content-Type')
         if (content_type == 'application/json'):
@@ -76,7 +77,7 @@ LOGIC: 1) delete the stock
 
 
 @app.route('/delete/stock', methods=['DELETE'])
-def removeStock():
+def remove_stock():
     try:
         content_type = request.headers.get('Content-Type')
         if (content_type == 'application/json'):
@@ -89,26 +90,26 @@ def removeStock():
 
 
 @app.route('/add/machine/', methods=['POST'])
-def addMachine():
+def add_machine():
     content_type = request.headers.get('Content-Type')
-    if (content_type == 'application/json'):
-        json = request.json
-        newMachine = Machine(name=json["name"], location=json["location"])
-        db.session.add(newMachine)
+    if content_type == 'application/json':
+        request_json = request.json
+        new_machine = Machine(name=request_json["name"], location=request_json["location"])
+        db.session.add(new_machine)
         db.session.commit()
-        return json
+        return request_json
 
 
 @app.route('/add/stock/', methods=['POST'])
 def addStock():
     try:
         content_type = request.headers.get('Content-Type')
-        if (content_type == 'application/json'):
-            json = request.json
-            newStock = Stock(name=json["name"], items=json["items"], machine_id=json["machine_id"])
+        if content_type == 'application/json':
+            request_json = request.json
+            newStock = Stock(name=request_json["name"], items=request_json["items"], machine_id=request_json["machine_id"])
             db.session.add(newStock)
             db.session.commit()
-            return json
+            return request_json
     except:
         return {'error': "Machine ID does not exist"}
 
@@ -136,27 +137,33 @@ def getInventory():
 
 @app.route('/edit/machine', methods=['PUT'])
 def editMachine():
-    content_type = request.headers.get('Content-Type')
-    if (content_type == 'application/json'):
-        json = request.json
-        updateMachine = Machine.query.filter_by(id=json["id"]).first()
-        updateMachine.name = json["name"]
-        updateMachine.location = json["location"]
-        db.session.commit()
-        return json
+    try:
+        content_type = request.headers.get('Content-Type')
+        if (content_type == 'application/json'):
+            json = request.json
+            updateMachine = Machine.query.filter_by(id=json["id"]).first()
+            updateMachine.name = json["name"]
+            updateMachine.location = json["location"]
+            db.session.commit()
+            return json
+    except:
+        return {'error': "Machine ID does not exist"}
 
 
 @app.route('/edit/stock', methods=['PUT'])
 def editStock():
-    content_type = request.headers.get('Content-Type')
-    if (content_type == 'application/json'):
-        json = request.json
-        updateStock = Stock.query.filter_by(id=json["id"]).first()
-        updateStock.name = json["name"]
-        updateStock.machine_id = json["machine_id"]
-        updateStock.items = json["items"]
-        db.session.commit()
-        return json
+    try:
+        content_type = request.headers.get('Content-Type')
+        if (content_type == 'application/json'):
+            json = request.json
+            updateStock = Stock.query.filter_by(id=json["id"]).first()
+            updateStock.name = json["name"]
+            updateStock.machine_id = json["machine_id"]
+            updateStock.items = json["items"]
+            db.session.commit()
+            return json
+    except:
+        return {'error': "Stock ID does not exist"}
 
 
 @app.route('/get/all/machine', methods=['GET'])

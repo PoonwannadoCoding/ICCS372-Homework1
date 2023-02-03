@@ -3,3 +3,4 @@ Flask_SQLAlchemy == 3.0.2
 SQLAlchemy == 1.4.46
 PyMySQL == 1.0.2
 cryptography
+requests~=2.28.2
