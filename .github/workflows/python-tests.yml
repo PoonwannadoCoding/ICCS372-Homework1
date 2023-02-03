@@ -41,6 +41,18 @@ jobs:
   test-and-coverage:
     runs-on: ubuntu-20.04
 
+    services:
+      mysql:
+        image: mysql
+        env:
+          - MYSQL_USER=admin
+          - MYSQL_PASSWORD=password123
+          - MYSQL_ROOT_PASSWORD=password123
+          - MYSQL_DATABASE=VendingMachine
+        ports:
+          - 3306:3306
+
+
     steps:
       - uses: actions/checkout@v2
 
