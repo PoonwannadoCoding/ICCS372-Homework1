@@ -59,8 +59,8 @@ def remove_machine():
             Machine.query.filter_by(id=json["id"]).delete()
             db.session.commit()
             return json
-    except Exception as errors:
-        return {'error': "ID does not exist", 'check':errors}
+    except Exception:
+        return {'error': "ID does not exist"}
 
 
 """
@@ -124,8 +124,8 @@ def get_inventory():
             inventory_machine = [{'id': s.id, 'machine_id': s.machine_id, 'name': s.name, 'items': s.items} for s in
                                 inventory]
             return jsonify(inventory_machine)
-    except Exception as errors:
-        return {'error': machine_does_not_exist, 'reason': errors}
+    except Exception:
+        return {'error': machine_does_not_exist}
 
 
 @app.route('/edit/machine', methods=['PUT'])
