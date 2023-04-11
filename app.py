@@ -1,7 +1,3 @@
-import json
-import os
-
-import requests
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
@@ -9,9 +5,6 @@ app = Flask(__name__)
 
 """Link SQLALCHEMY with Mysql"""
 "================================================================================================"
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://username:password@localhost/db_name'
-# app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://" + os.environ["MYSQL_USER"] + ":" + os.environ[
-#     "MYSQL_PASSWORD"] + "@" + os.environ["MYSQL_DATABASE"] + "/VendingMachine"
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://admin:password123@localhost:3306/VendingMachine'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -54,19 +47,19 @@ Delte machine
 LOGIC: 1) delete the stock that have machine id same as the machine that we want to delete
        2) delete the machine
 """
-
-
+application_type_json = "application/json"
+machine_does_not_exist = "Machine ID does not exist"
 @app.route('/delete/machine', methods=['DELETE'])
 def remove_machine():
     try:
         content_type = request.headers.get('Content-Type')
-        if (content_type == 'application/json'):
+        if (content_type == application_type_json):
             json = request.json
             Stock.query.filter_by(machine_id=json["id"]).delete()
             Machine.query.filter_by(id=json["id"]).delete()
             db.session.commit()
             return json
-    except:
+    except Exception:
         return {'error': "ID does not exist"}
 
 
@@ -80,19 +73,19 @@ LOGIC: 1) delete the stock
 def remove_stock():
     try:
         content_type = request.headers.get('Content-Type')
-        if (content_type == 'application/json'):
+        if content_type == application_type_json:
             json = request.json
             Stock.query.filter_by(id=json["id"]).delete()
             db.session.commit()
             return json
-    except:
+    except Exception:
         return {'error': "ID does not exist"}
 
 
 @app.route('/add/machine/', methods=['POST'])
 def add_machine():
     content_type = request.headers.get('Content-Type')
-    if content_type == 'application/json':
+    if content_type == application_type_json:
         request_json = request.json
         new_machine = Machine(name=request_json["name"], location=request_json["location"])
         db.session.add(new_machine)
@@ -101,17 +94,17 @@ def add_machine():
 
 
 @app.route('/add/stock/', methods=['POST'])
-def addStock():
+def add_stock():
     try:
         content_type = request.headers.get('Content-Type')
-        if content_type == 'application/json':
+        if content_type == application_type_json:
             request_json = request.json
-            newStock = Stock(name=request_json["name"], items=request_json["items"], machine_id=request_json["machine_id"])
-            db.session.add(newStock)
+            new_stock = Stock(name=request_json["name"], items=request_json["items"], machine_id=request_json["machine_id"])
+            db.session.add(new_stock)
             db.session.commit()
             return request_json
-    except:
-        return {'error': "Machine ID does not exist"}
+    except Exception:
+        return {'error': machine_does_not_exist}
 
 
 """
@@ -122,62 +115,62 @@ LOGIC:  1) search stock that have the same id as machine
 
 
 @app.route('/get/machine/inventory', methods=['GET'])
-def getInventory():
+def get_inventory():
     try:
         conteny_type = request.headers.get('Content-Type')
-        if (conteny_type == 'application/json'):
-            id = request.json["id"]
-            inventory = Stock.query.filter_by(machine_id=id).all()
-            inventoryMachine = [{'id': s.id, 'machine_id': s.machine_id, 'name': s.name, 'items': s.items} for s in
+        if (conteny_type == application_type_json):
+            vending_machine_id = request.json["id"]
+            inventory = Stock.query.filter_by(machine_id=vending_machine_id).all()
+            inventory_machine = [{'id': s.id, 'machine_id': s.machine_id, 'name': s.name, 'items': s.items} for s in
                                 inventory]
-            return jsonify(inventoryMachine)
-    except:
-        return {'error': "Machine ID does not exist"}
+            return jsonify(inventory_machine)
+    except Exception:
+        return {'error': machine_does_not_exist}
 
 
 @app.route('/edit/machine', methods=['PUT'])
-def editMachine():
+def edit_machine():
     try:
         content_type = request.headers.get('Content-Type')
         if (content_type == 'application/json'):
             json = request.json
-            updateMachine = Machine.query.filter_by(id=json["id"]).first()
-            updateMachine.name = json["name"]
-            updateMachine.location = json["location"]
+            update_machine = Machine.query.filter_by(id=json["id"]).first()
+            update_machine.name = json["name"]
+            update_machine.location = json["location"]
             db.session.commit()
             return json
-    except:
-        return {'error': "Machine ID does not exist"}
+    except Exception:
+        return {'error': machine_does_not_exist}
 
 
 @app.route('/edit/stock', methods=['PUT'])
-def editStock():
+def edit_stock():
     try:
         content_type = request.headers.get('Content-Type')
         if (content_type == 'application/json'):
             json = request.json
-            updateStock = Stock.query.filter_by(id=json["id"]).first()
-            updateStock.name = json["name"]
-            updateStock.machine_id = json["machine_id"]
-            updateStock.items = json["items"]
+            update_stock = Stock.query.filter_by(id=json["id"]).first()
+            update_stock.name = json["name"]
+            update_stock.machine_id = json["machine_id"]
+            update_stock.items = json["items"]
             db.session.commit()
             return json
-    except:
+    except Exception:
         return {'error': "Stock ID does not exist"}
 
 
 @app.route('/get/all/machine', methods=['GET'])
-def showAllMachine():
+def show_all_machine():
     machine = Machine.query.all()
-    allMachines = [{'id': mech.id, 'name': mech.name, 'location': mech.location} for mech in machine]
-    return jsonify(allMachines)
+    all_machine = [{'id': mech.id, 'name': mech.name, 'location': mech.location} for mech in machine]
+    return jsonify(all_machine)
 
 
 @app.route('/get/all/stock', methods=['GET'])
-def showAllStock():
+def show_all_stock():
     stocks = Stock.query.all()
-    allStocks = [{'id': s.id, 'machine_id': s.machine_id, 'name': s.name, 'items': s.items} for s in stocks]
-    return jsonify(allStocks)
+    all_stocks = [{'id': s.id, 'machine_id': s.machine_id, 'name': s.name, 'items': s.items} for s in stocks]
+    return jsonify(all_stocks)
 
 
 if __name__ == '__main__':
